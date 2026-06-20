@@ -21,8 +21,8 @@ const channels = [
   },
   {
     label: "Phone",
-    value: "+91 80 4000 1240",
-    href: "tel:+918040001240",
+    value: "+977-9866293083",
+    href: "tel:+01-015927975",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -31,8 +31,8 @@ const channels = [
   },
   {
     label: "Headquarters",
-    value: "1240 Health Plaza, Bengaluru 560001",
-    href: "https://maps.google.com/?q=Bengaluru",
+    value: "Kathmandu, Nepal",
+    href: "https://maps.google.com/?q=Kathmandu,+Nepal",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
         <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" />

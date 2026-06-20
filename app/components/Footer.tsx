@@ -57,9 +57,9 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-semibold text-foreground">Contact</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-600">
-            <li>1240 Health Plaza, Bengaluru 560001</li>
-            <li>+91 80 4000 1240</li>
-            <li>care@rapidkithouse.com.np</li>
+            <li>Kathmandu, Nepal</li>
+            <li>+977-9866293083</li>
+            <li>rapidkithousenepal@gmail.com</li>
           </ul>
         </div>
       </div>

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /d d:\\\\kit-house)",
+      "Bash(dir /b .next)",
+      "Bash(tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV)"
+    ]
+  }
+}
