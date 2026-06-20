@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import emailjs from "@emailjs/browser";
 
-type Status = "idle" | "submitting" | "success";
+type Status = "idle" | "submitting" | "success" | "error";
 
 const topicOptions = [
   { value: "quote", label: "Bulk quote" },
@@ -11,16 +12,37 @@ const topicOptions = [
   { value: "support", label: "Product support" },
 ];
 
+const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
+
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+      console.error(
+        "EmailJS is not configured. Set NEXT_PUBLIC_EMAILJS_SERVICE_ID, " +
+          "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID and NEXT_PUBLIC_EMAILJS_PUBLIC_KEY.",
+      );
+      setStatus("error");
+      return;
+    }
+
     setStatus("submitting");
-    setTimeout(() => {
+    try {
+      await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form, {
+        publicKey: PUBLIC_KEY,
+      });
       setStatus("success");
-      (e.target as HTMLFormElement).reset();
-    }, 800);
+      form.reset();
+    } catch (error) {
+      console.error("Failed to send contact message", error);
+      setStatus("error");
+    }
   }
 
   if (status === "success") {
@@ -221,6 +243,30 @@ export function ContactForm() {
             />
           </div>
         </fieldset>
+
+        {status === "error" && (
+          <div
+            role="alert"
+            className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-4 w-4 shrink-0">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4" />
+              <path d="M12 16h.01" />
+            </svg>
+            <span>
+              Something went wrong while sending your message. Please try again,
+              or email us directly at{" "}
+              <a
+                href="mailto:care@rapidkithouse.com.np"
+                className="font-medium underline"
+              >
+                care@rapidkithouse.com.np
+              </a>
+              .
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col-reverse gap-4 border-t border-border bg-surface px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">

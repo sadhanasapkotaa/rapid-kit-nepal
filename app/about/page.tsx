@@ -24,7 +24,7 @@ const values = [
 ];
 
 const milestones = [
-  { year: "2007", text: "Rapid Kit House Nepal founded in Bengaluru with a single first-aid product line." },
+  { year: "2007", text: "Rapid Kit House Nepal founded in Kathmandu with a single first-aid product line." },
   { year: "2012", text: "Achieved ISO 13485 certification for medical device quality management." },
   { year: "2017", text: "Expanded to 15 countries through partnerships with public-health NGOs." },
   { year: "2021", text: "Launched our COVID-19 rapid-test kit, distributing 6M units in 18 months." },
