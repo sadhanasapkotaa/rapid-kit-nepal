@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Product, Tag } from "@/lib/supabase/types";
 
 export type { Product, Tag } from "@/lib/supabase/types";
+export { formatPrice } from "@/lib/format";
 
 const SELECT =
   "id, product_code, supplier_id, title, slug, description, price, " +
@@ -68,12 +69,4 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     return null;
   }
   return mapRow(data as unknown as Row);
-}
-
-export function formatPrice(amount: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
 }
