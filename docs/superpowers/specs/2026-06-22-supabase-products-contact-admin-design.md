@@ -1,150 +1,216 @@
-# Design: Dynamic Products, Contact Persistence & Admin Panel
+# Design: Dynamic Products, Suppliers, Tags, Contact Persistence & Admin Panel
 
 **Date:** 2026-06-22
-**Status:** Approved
+**Status:** Approved (revised after richer data-model requirements)
 
 ## Goal
 
-Make the product catalogue dynamic via Supabase, persist contact-form
-submissions to Supabase (without breaking the existing EmailJS flow), and add an
-authenticated admin panel where admins can add products and read contact
-messages.
+Make the product catalogue dynamic via Supabase with a normalized,
+loosely-coupled schema (suppliers, tags, multiple images/videos per product),
+persist contact-form submissions to Supabase without breaking the existing
+EmailJS flow, and add an authenticated admin panel where admins manage products,
+suppliers, tags, and read contact messages. The schema must be extensible so
+future supplies/inventory features attach without rework.
 
 ## Context
 
 - Next.js 16.2.6 (App Router), React 19, Tailwind v4.
 - `@supabase/ssr` and `@supabase/supabase-js` already installed.
-- `.env` already contains `NEXT_PUBLIC_SUPABASE_URL` and
-  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-- Products are currently hard-coded in `app/products/products.ts`, consumed by
-  both `app/products/page.tsx` and the homepage `app/page.tsx` (featured = first 3).
+- `.env` contains `NEXT_PUBLIC_SUPABASE_URL` and
+  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (anon). SQL is applied via the Supabase
+  dashboard SQL editor; no DB password needed there.
+- Products currently hard-coded in `app/products/products.ts`, consumed by
+  `app/products/page.tsx` and homepage `app/page.tsx` (featured = first 3).
 - Contact form `app/contact/ContactForm.tsx` is a client component using EmailJS.
 
 > **AGENTS.md constraint:** This Next.js version has breaking changes. The
 > relevant guides in `node_modules/next/dist/docs/` MUST be read before writing
-> middleware, server components, or route handlers.
+> middleware, server components, route handlers, or dynamic route params.
 
 ## Decisions (from brainstorming)
 
-1. **Admin access:** Manual / invite-only. No public signup. Admin accounts are
-   created in the Supabase dashboard. Every authenticated user is an admin — no
-   separate role table.
-2. **Product images:** Uploaded to a Supabase Storage bucket; the public URL is
-   saved on the product row.
-3. **Contact flow:** Keep EmailJS send exactly as-is **and additionally** insert
-   the message into Supabase. Email remains the source of truth for the existing
-   success/error UX.
+1. **Admin access:** Manual / invite-only. No public signup. Admin accounts
+   created in the Supabase dashboard. Every authenticated user is an admin.
+2. **Product images & videos:** Uploaded to Supabase Storage buckets; public
+   URLs saved as rows. A product can have 1+ images and 1+ videos.
+3. **Tags:** Many-to-many. Tags (e.g. "HIV kit", "Pregnancy kit") have a
+   `tag_code`. A product can carry multiple tags.
+4. **Suppliers:** Each product may be associated with one supplier (FK).
+   Supplier data is internal — visible only in the admin panel.
+5. **Contact flow:** Keep EmailJS send as-is AND additionally insert into
+   Supabase. Email stays the source of truth for the success/error UX.
+6. **Public detail page:** Add `/products/[slug]` showing the image gallery,
+   videos, full description, and tags. Listing cards link to it.
+7. **URL identifier:** Auto-generated slug from product title. `product_code`
+   remains an internal field.
 
 ## Architecture
 
-### 1. Supabase schema
+### 1. Supabase schema (normalized & decoupled)
+
+**`suppliers`**
+- `id` uuid pk default `gen_random_uuid()`
+- `supplier_code` text unique not null
+- `name` text not null
+- `country_of_origin` text
+- `contact_person_name` text
+- `contact_phone` text
+- `contact_email` text
+- `created_at` timestamptz not null default `now()` (supplier addition date)
+- Supplier's product list is **derived** via the FK on `products`, not stored.
+
+**`tags`**
+- `id` uuid pk default `gen_random_uuid()`
+- `tag_code` text unique not null
+- `name` text not null
+- `created_at` timestamptz not null default `now()`
 
 **`products`**
 - `id` uuid pk default `gen_random_uuid()`
-- `created_at` timestamptz default `now()`
+- `product_code` text unique not null
+- `supplier_id` uuid null references `suppliers(id)` on delete set null
+- `title` text not null
 - `slug` text unique not null
-- `name` text not null
-- `category` text not null
+- `description` text
 - `price` numeric not null
-- `description` text not null
-- `image` text not null (public Storage URL)
+- `created_at` timestamptz not null default `now()`
 
-**`contact_messages`**
-- `id` uuid pk default `gen_random_uuid()`
+**`product_images`**
+- `id` uuid pk, `product_id` uuid references `products(id)` on delete cascade
+- `url` text not null, `sort_order` int not null default 0
 - `created_at` timestamptz default `now()`
-- `name` text not null
-- `email` text not null
-- `organization` text (nullable)
-- `phone` text (nullable)
-- `topic` text not null
-- `message` text not null
-- `is_read` boolean not null default false
 
-**Storage bucket** `product-images` — public read, authenticated write.
+**`product_videos`**
+- `id` uuid pk, `product_id` uuid references `products(id)` on delete cascade
+- `url` text not null, `sort_order` int not null default 0
+- `created_at` timestamptz default `now()`
+
+**`product_tags`** (junction, many-to-many)
+- `product_id` uuid references `products(id)` on delete cascade
+- `tag_id` uuid references `tags(id)` on delete cascade
+- primary key `(product_id, tag_id)`
+
+**Storage buckets** `product-images` and `product-videos` — public read,
+authenticated write.
+
+**Decoupling notes:** all relationships are explicit FKs with deliberate
+on-delete behavior (cascade for owned media/junctions, `set null` for the
+supplier association so deleting a supplier never destroys products). No derived
+data is stored. Future `supplies` / `inventory` tables can FK to `products` and
+`suppliers` without touching existing tables.
 
 ### 2. RLS policies
 
-- `products`: public `SELECT`; authenticated `INSERT`/`UPDATE`/`DELETE`.
+- Public `SELECT`: `products`, `product_images`, `product_videos`,
+  `product_tags`, `tags`.
+- Admin-only `SELECT`: `suppliers` (authenticated only).
+- Authenticated `INSERT`/`UPDATE`/`DELETE` on all of the above tables.
 - `contact_messages`: anon + authenticated `INSERT`; authenticated
   `SELECT`/`UPDATE` only.
-- Storage `product-images`: public `SELECT`; authenticated
-  `INSERT`/`UPDATE`/`DELETE`.
+- Storage `product-images` / `product-videos`: public `SELECT`; authenticated
+  write.
 
-Public signups disabled in Supabase Auth settings (documented toggle). Because
-signup is disabled, the set of authenticated users == the set of admins.
+**`contact_messages`** (unchanged from prior revision)
+- `id` uuid pk, `created_at` timestamptz default `now()`
+- `name`, `email` (not null), `organization` (null), `phone` (null),
+  `topic` (not null), `message` (not null), `is_read` bool default false.
 
-A seed SQL statement migrates the 7 existing hard-coded products into the table.
+Public signups disabled in Supabase Auth settings (documented). Since signup is
+disabled, authenticated users == admins.
+
+**Seed:** migrate the 7 existing products — create tags from their current
+categories (HIV/HCV Diagnostics), insert each product with a generated
+`product_code`, a slug, its single existing image as one `product_images` row,
+and the matching tag. No supplier (nullable).
 
 ### 3. Supabase client wiring (`@supabase/ssr`)
 
-- `lib/supabase/client.ts` — browser client (contact form + admin client
-  interactions).
-- `lib/supabase/server.ts` — cookie-based server client (Server Components
-  reading products, auth checks).
-- `middleware.ts` — refreshes the auth session cookie on each request (required
-  by `@supabase/ssr`) and guards `/admin/*`.
+- `lib/supabase/client.ts` — browser client (contact form + admin interactions).
+- `lib/supabase/server.ts` — cookie-based server client (Server Components,
+  auth checks).
+- `middleware.ts` — refreshes the auth session cookie (required by
+  `@supabase/ssr`) and guards `/admin/*`.
 
-### 4. Dynamic products
+### 4. Dynamic products + data access layer
 
-- `app/products/products.ts`: keep the `Product` type and `formatPrice`; remove
-  the hard-coded array; add `getProducts()` and `getFeaturedProducts()` that read
-  from Supabase via the server client.
-- `app/products/page.tsx` and `app/page.tsx` become `async` Server Components
-  calling those functions. UI markup unchanged. Categories derived from the
-  fetched rows.
+`app/products/products.ts` keeps `formatPrice`; the hard-coded array is removed.
+New types and async accessors (via the server client):
 
-### 5. Contact form — additive only
+- `Product` (with `images: string[]`, `videos: string[]`, `tags: Tag[]`,
+  optional `supplier`).
+- `getProducts()` — listing data (joins images, tags).
+- `getFeaturedProducts()` — first N for the homepage.
+- `getProductBySlug(slug)` — full detail incl. videos.
+
+`app/products/page.tsx` and `app/page.tsx` become `async` Server Components.
+Listing card UI: first image (lowest `sort_order`), title, tag chips, price,
+link to `/products/[slug]`. Top-of-page category chips derive from tags.
+
+### 5. Product detail page — `app/products/[slug]/page.tsx`
+
+Server Component reading `getProductBySlug`. Renders image gallery, embedded
+videos, full description, tag chips, price, and an "Enquire" link to `/contact`.
+No supplier info shown. Returns `notFound()` for unknown slugs.
+
+### 6. Contact form — additive only
 
 `app/contact/ContactForm.tsx`: EmailJS `sendForm` stays exactly as-is. After
-(and independent of) the email send, also insert the field values into
+(and independent of) the email send, insert the field values into
 `contact_messages` via the browser client. A DB-insert failure is logged but
-does not block the user's success state; email remains the source of truth.
+does not affect the EmailJS-driven success/error UX.
 
-### 6. Auth + admin panel (`app/admin/`)
+### 7. Auth + admin panel (`app/admin/`)
 
-- `/admin/login` — email + password login (Supabase Auth). No signup link.
+- `/admin/login` — email + password login. No signup link.
 - `middleware.ts` guards `/admin/*` except `/admin/login`; unauthenticated →
   redirect to login.
-- `/admin` — dashboard: nav to Products + Messages, logout button.
-- `/admin/products` — product table with add / edit / delete. Add/edit form
-  includes an image file upload to `product-images`, then saves the row.
+- `/admin` — dashboard with nav (Products, Suppliers, Tags, Messages) + logout.
+- `/admin/products` — list + add/edit/delete. Form fields: `product_code`,
+  `title` (slug auto-derived), `description`, `price`, supplier (select from
+  suppliers), tags (multi-select from tags), images (multi-upload), videos
+  (multi-upload or URL).
+- `/admin/suppliers` — CRUD suppliers (all fields incl. contact details).
+- `/admin/tags` — CRUD tags (`name`, `tag_code`).
 - `/admin/messages` — contact messages, newest first, mark-as-read.
 
-Admin write operations go through the authenticated browser client; RLS permits
-the writes.
+Admin writes go through the authenticated browser client; RLS permits them.
 
-### 7. Docs
+### 8. Docs
 
-`SUPABASE_SETUP.md` documenting: the SQL (tables + RLS + seed), bucket creation,
-disabling public signups, and creating the first admin user.
+`SUPABASE_SETUP.md`: full SQL (tables + RLS + seed), bucket creation, disabling
+public signups, and creating the first admin user.
 
 ## Data flow
 
-- **Public product view:** Server Component → server Supabase client →
-  `SELECT` (public RLS) → render.
-- **Contact submit:** Client → EmailJS `sendForm` (unchanged) + browser Supabase
-  client `INSERT` into `contact_messages` (anon RLS).
-- **Admin:** middleware verifies session → admin pages use browser client with
-  authenticated session → reads/writes allowed by RLS.
+- **Public listing/detail:** Server Component → server Supabase client →
+  `SELECT` (public RLS) → render. Suppliers excluded.
+- **Contact submit:** Client → EmailJS `sendForm` (unchanged) + browser client
+  `INSERT` into `contact_messages` (anon RLS).
+- **Admin:** middleware verifies session → admin pages use authenticated browser
+  client → reads/writes allowed by RLS, including suppliers.
 
 ## Error handling
 
-- Product reads failing → render empty/zero-state catalogue (no crash).
-- Contact DB insert failing → log, do not affect EmailJS-driven success UX.
-- Admin actions failing → inline error message; no optimistic data loss.
-- Unauthenticated `/admin/*` access → redirect to `/admin/login`.
+- Product reads failing → empty/zero-state catalogue (no crash).
+- Unknown slug → `notFound()`.
+- Contact DB insert failing → log only; EmailJS UX unaffected.
+- Admin actions failing → inline error; no optimistic data loss.
+- Media upload failing → surface error, do not save a half-broken product.
+- Unauthenticated `/admin/*` → redirect to `/admin/login`.
 
 ## Testing / verification
 
-- Products page and homepage render rows from Supabase.
+- Listing + detail pages render products, images, videos, and tags from Supabase.
 - Contact submit sends email AND creates a `contact_messages` row.
 - `/admin/*` redirects to login when logged out.
-- Logged-in admin can add a product (with image upload) that then appears on the
-  public site, and can view/mark messages.
+- Logged-in admin can: create a supplier; create a tag; create a product with a
+  supplier, multiple tags, multiple images, and a video — and it appears on the
+  public listing + detail page; view/mark messages.
+- Supplier data never appears on public pages.
 
-## Out of scope (YAGNI)
+## Out of scope (YAGNI, deferred to later phases)
 
-- Product detail (`[slug]`) pages — none exist today.
+- Supplies / inventory tables (schema is designed to accept them later).
 - Multi-role permissions / per-admin scoping.
-- Editing the decorative marketing copy/stats.
-- Order/checkout functionality.
+- Editing decorative marketing copy/stats.
+- Orders / checkout.
