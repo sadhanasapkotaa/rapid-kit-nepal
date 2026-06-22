@@ -115,10 +115,10 @@ export default function ContactPage() {
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 For product complaints or adverse-event reports, please email{" "}
                 <a
-                  href="mailto:vigilance@rapidkithouse.com.np"
+                  href="mailto:rapidkithousenepalofficial@gmail.com"
                   className="font-medium text-primary-dark hover:underline"
                 >
-                  vigilance@rapidkithouse.com.np
+                  rapidkithousenepalofficial@gmail.com
                 </a>{" "}
                 with the lot number and a brief description.
               </p>

@@ -258,10 +258,10 @@ export function ContactForm() {
               Something went wrong while sending your message. Please try again,
               or email us directly at{" "}
               <a
-                href="mailto:care@rapidkithouse.com.np"
+                href="mailto:rapidkithousenepalofficial@gmail.com"
                 className="font-medium underline"
               >
-                care@rapidkithouse.com.np
+                rapidkithousenepalofficial@gmail.com
               </a>
               .
             </span>
