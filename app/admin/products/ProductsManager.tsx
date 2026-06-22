@@ -44,8 +44,6 @@ export function ProductsManager() {
   const [editing, setEditing] = useState<AdminProduct | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     const supabase = createClient();
     const [pRes, sRes, tRes] = await Promise.all([
       supabase.from("products").select(SELECT).order("created_at", {
@@ -80,10 +78,13 @@ export function ProductsManager() {
     setProducts(rows);
     setSuppliers(sRes.data as Supplier[]);
     setTags(tRes.data as Tag[]);
+    setError(null);
     setLoading(false);
   }, []);
 
   useEffect(() => {
+    // Fetch-on-mount from Supabase (external system); state updates occur after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

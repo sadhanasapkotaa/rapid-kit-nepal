@@ -11,18 +11,21 @@ export function UsersManager({ currentUserId }: { currentUserId: string }) {
   const [savingId, setSavingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     const { data, error } = await createClient()
       .from("profiles")
       .select("id, email, role, created_at")
       .order("created_at", { ascending: true });
     if (error) setError(error.message);
-    else setProfiles(data as Profile[]);
+    else {
+      setProfiles(data as Profile[]);
+      setError(null);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
+    // Fetch-on-mount from Supabase (external system); state updates occur after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

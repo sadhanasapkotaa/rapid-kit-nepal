@@ -17,18 +17,21 @@ export function MessagesManager() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     const { data, error } = await createClient()
       .from("contact_messages")
       .select("*")
       .order("created_at", { ascending: false });
     if (error) setError(error.message);
-    else setMessages(data as ContactMessage[]);
+    else {
+      setMessages(data as ContactMessage[]);
+      setError(null);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
+    // Fetch-on-mount from Supabase (external system); state updates occur after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

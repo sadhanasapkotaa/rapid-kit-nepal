@@ -19,18 +19,21 @@ export function TagsManager() {
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     const { data, error } = await createClient()
       .from("tags")
       .select("id, tag_code, name")
       .order("name");
     if (error) setError(error.message);
-    else setTags(data as Tag[]);
+    else {
+      setTags(data as Tag[]);
+      setError(null);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
+    // Fetch-on-mount from Supabase (external system); state updates occur after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

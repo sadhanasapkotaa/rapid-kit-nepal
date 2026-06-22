@@ -47,18 +47,21 @@ export function SuppliersManager() {
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     const { data, error } = await createClient()
       .from("suppliers")
       .select("*")
       .order("name");
     if (error) setError(error.message);
-    else setSuppliers(data as Supplier[]);
+    else {
+      setSuppliers(data as Supplier[]);
+      setError(null);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
+    // Fetch-on-mount from Supabase (external system); state updates occur after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
