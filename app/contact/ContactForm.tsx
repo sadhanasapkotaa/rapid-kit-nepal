@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import emailjs from "@emailjs/browser";
+import { createClient } from "@/lib/supabase/client";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -32,6 +33,18 @@ export function ContactForm() {
       return;
     }
 
+    // Capture field values before form.reset() clears them, so we can persist
+    // to Supabase regardless of the EmailJS outcome.
+    const fd = new FormData(form);
+    const messageRow = {
+      name: String(fd.get("name") ?? ""),
+      email: String(fd.get("email") ?? ""),
+      organization: (fd.get("organization") as string) || null,
+      phone: (fd.get("phone") as string) || null,
+      topic: String(fd.get("topic") ?? ""),
+      message: String(fd.get("message") ?? ""),
+    };
+
     setStatus("submitting");
     try {
       await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form, {
@@ -42,6 +55,20 @@ export function ContactForm() {
     } catch (error) {
       console.error("Failed to send contact message", error);
       setStatus("error");
+    }
+
+    // Persist to Supabase independently. A DB failure must never affect the
+    // EmailJS-driven success/error UX above — email is the source of truth.
+    try {
+      const supabase = createClient();
+      const { error: dbError } = await supabase
+        .from("contact_messages")
+        .insert(messageRow);
+      if (dbError) {
+        console.error("Failed to persist contact message", dbError);
+      }
+    } catch (dbError) {
+      console.error("Failed to persist contact message", dbError);
     }
   }
 
