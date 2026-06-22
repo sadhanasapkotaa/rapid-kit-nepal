@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { products, formatPrice } from "./products/products";
+import { getFeaturedProducts, formatPrice } from "./products/products";
 
-const featured = products.slice(0, 3);
+const FALLBACK_IMAGE = "/images/HIV-Tri-Dot.webp";
 
 const features = [
   {
@@ -38,7 +38,8 @@ const features = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const featured = await getFeaturedProducts(3);
   return (
     <>
       <section className="relative overflow-hidden bg-linear-to-br from-muted via-white to-white">
@@ -170,8 +171,9 @@ export default function Home() {
           </div>
           <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((p) => (
-              <article
-                key={p.slug}
+              <Link
+                key={p.id}
+                href={`/products/${p.slug}`}
                 className="group overflow-hidden rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md"
               >
                 <div
@@ -179,28 +181,32 @@ export default function Home() {
                   className="aspect-4/3 w-full overflow-hidden bg-muted"
                 >
                   <Image
-                    src={p.image}
-                    alt={p.name}
+                    src={p.images[0] ?? FALLBACK_IMAGE}
+                    alt={p.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-xs font-medium uppercase tracking-wide text-primary-dark">
-                    {p.category}
-                  </p>
+                  {p.tags[0] && (
+                    <p className="text-xs font-medium uppercase tracking-wide text-primary-dark">
+                      {p.tags[0].name}
+                    </p>
+                  )}
                   <h3 className="mt-1 text-lg font-semibold text-foreground">
-                    {p.name}
+                    {p.title}
                   </h3>
-                  <p className="mt-2 line-clamp-2 text-sm text-slate-600">
-                    {p.description}
-                  </p>
+                  {p.description && (
+                    <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+                      {p.description}
+                    </p>
+                  )}
                   <p className="mt-4 text-base font-semibold text-foreground">
                     {formatPrice(p.price)}
                   </p>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </div>
