@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Rapid Kit House Nepal",
   description:
-    "Rapid Kit House Nepal manufactures professional-grade medical kits trusted by clinics, hospitals, and households in 30+ countries.",
+    "Rapid Kit House Nepal distributes professional-grade medical kits trusted by clinics, hospitals, and households in 30+ countries.",
 };
 
 const values = [
