@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About — Rapid Kit House Nepal",
+  title: "About Rapid Kit House Nepal",
   description:
     "Rapid Kit House Nepal manufactures professional-grade medical kits trusted by clinics, hospitals, and households in 30+ countries.",
 };
@@ -19,7 +19,7 @@ const values = [
   },
   {
     title: "Clinician-led design",
-    body: "Every kit is co-designed with practising doctors, nurses, and field workers — so what's inside is what's actually needed.",
+    body: "Every kit is co-designed with practising doctors, nurses, and field workers so what's inside is what's actually needed.",
   },
 ];
 
@@ -129,7 +129,7 @@ export default function AboutPage() {
               </h2>
               <p className="mt-2 max-w-2xl text-slate-600">
                 We work with hospitals, NGOs, government programs, and
-                pharmacies. Tell us what you need — we&apos;ll design a kit
+                pharmacies. Tell us what you need we&apos;ll design a kit
                 program around it.
               </p>
             </div>

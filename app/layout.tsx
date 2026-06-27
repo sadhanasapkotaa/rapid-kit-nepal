@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Rapid Kit House Nepal — Trusted Medical Kits for Every Need",
+  title: "Rapid Kit House Nepal Trusted Medical Kits for Every Need",
   description:
-    "Rapid Kit House Nepal manufactures and distributes professional-grade medical kits for clinics, hospitals, and households — from pregnancy and HIV testing to first aid and surgical care.",
+    "Rapid Kit House Nepal manufactures and distributes professional-grade medical kits for clinics, hospitals, and households from pregnancy and HIV testing to first aid and surgical care.",
 };
 
 export default function RootLayout({

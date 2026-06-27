@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 import { getProducts, formatPrice } from "./products";
 
 export const metadata: Metadata = {
-  title: "Products — Rapid Kit House Nepal Medical Kits",
+  title: "Products Rapid Kit House Nepal Medical Kits",
   description:
-    "Browse our range of rapid HIV and HCV diagnostic kits — sealed, lot-traceable, and ready to deploy.",
+    "Browse our range of rapid HIV and HCV diagnostic kits sealed, lot-traceable, and ready to deploy.",
 };
 
 const FALLBACK_IMAGE = "/images/HIV-Tri-Dot.webp";

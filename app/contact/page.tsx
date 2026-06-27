@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
-  title: "Contact — Rapid Kit House Nepal",
+  title: "Contact Rapid Kit House Nepal",
   description:
     "Reach the Rapid Kit House Nepal team for bulk orders, custom kit configurations, distribution partnerships, or product support.",
 };

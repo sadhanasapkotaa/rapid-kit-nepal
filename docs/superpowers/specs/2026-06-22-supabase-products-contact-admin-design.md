@@ -32,7 +32,7 @@
   1. **Admin access & roles:** Manual / invite-only. No public signup. User
     accounts created in the Supabase dashboard. A `profiles` table assigns each
     user a **role**: `admin` (full access incl. managing users/roles) or `staff`
-    (manage all content — products, suppliers, tags, messages — but NOT users).
+    (manage all content products, suppliers, tags, messages but NOT users).
     New users default to `staff`; an admin promotes them. The first admin is set
     by an `UPDATE` documented in setup.
   2. **Product images & videos:** Uploaded to Supabase Storage buckets; public
@@ -40,7 +40,7 @@
   3. **Tags:** Many-to-many. Tags (e.g. "HIV kit", "Pregnancy kit") have a
     `tag_code`. A product can carry multiple tags.
   4. **Suppliers:** Each product may be associated with one supplier (FK).
-    Supplier data is internal — visible only in the admin panel.
+    Supplier data is internal visible only in the admin panel.
   5. **Contact flow:** Keep EmailJS send as-is AND additionally insert into
     Supabase. Email stays the source of truth for the success/error UX.
   6. **Public detail page:** Add `/products/[slug]` showing the image gallery,
@@ -108,7 +108,7 @@
   - `is_admin()` → true if the caller's profile role is `admin`.
   - `is_staff_or_admin()` → true if the caller has any profile (staff or admin).
 
-  **Storage buckets** `product-images` and `product-videos` — public read,
+  **Storage buckets** `product-images` and `product-videos` public read,
   authenticated write.
 
   **Decoupling notes:** all relationships are explicit FKs with deliberate
@@ -121,7 +121,7 @@
 
   - Public `SELECT`: `products`, `product_images`, `product_videos`,
     `product_tags`, `tags`.
-  - Internal `SELECT`: `suppliers` — `is_staff_or_admin()` only (no public read).
+  - Internal `SELECT`: `suppliers` `is_staff_or_admin()` only (no public read).
   - Content writes (`INSERT`/`UPDATE`/`DELETE`) on `products`, `product_images`,
     `product_videos`, `product_tags`, `tags`, `suppliers`: `is_staff_or_admin()`
     (both roles manage content).
@@ -141,17 +141,17 @@
   Public signups disabled in Supabase Auth settings (documented). Users are
   created in the dashboard; their role lives in `profiles`.
 
-  **Seed:** migrate the 7 existing products — create tags from their current
+  **Seed:** migrate the 7 existing products create tags from their current
   categories (HIV/HCV Diagnostics), insert each product with a generated
   `product_code`, a slug, its single existing image as one `product_images` row,
   and the matching tag. No supplier (nullable).
 
   ### 3. Supabase client wiring (`@supabase/ssr`)
 
-  - `lib/supabase/client.ts` — browser client (contact form + admin interactions).
-  - `lib/supabase/server.ts` — cookie-based server client (Server Components,
+  - `lib/supabase/client.ts` browser client (contact form + admin interactions).
+  - `lib/supabase/server.ts` cookie-based server client (Server Components,
     auth checks).
-  - `middleware.ts` — refreshes the auth session cookie (required by
+  - `middleware.ts` refreshes the auth session cookie (required by
     `@supabase/ssr`) and guards `/admin/*`.
 
   ### 4. Dynamic products + data access layer
@@ -161,21 +161,21 @@
 
   - `Product` (with `images: string[]`, `videos: string[]`, `tags: Tag[]`,
     optional `supplier`).
-  - `getProducts()` — listing data (joins images, tags).
-  - `getFeaturedProducts()` — first N for the homepage.
-  - `getProductBySlug(slug)` — full detail incl. videos.
+  - `getProducts()` listing data (joins images, tags).
+  - `getFeaturedProducts()` first N for the homepage.
+  - `getProductBySlug(slug)` full detail incl. videos.
 
   `app/products/page.tsx` and `app/page.tsx` become `async` Server Components.
   Listing card UI: first image (lowest `sort_order`), title, tag chips, price,
   link to `/products/[slug]`. Top-of-page category chips derive from tags.
 
-  ### 5. Product detail page — `app/products/[slug]/page.tsx`
+  ### 5. Product detail page `app/products/[slug]/page.tsx`
 
   Server Component reading `getProductBySlug`. Renders image gallery, embedded
   videos, full description, tag chips, price, and an "Enquire" link to `/contact`.
   No supplier info shown. Returns `notFound()` for unknown slugs.
 
-  ### 6. Contact form — additive only
+  ### 6. Contact form additive only
 
   `app/contact/ContactForm.tsx`: EmailJS `sendForm` stays exactly as-is. After
   (and independent of) the email send, insert the field values into
@@ -184,19 +184,19 @@
 
   ### 7. Auth + admin panel (`app/admin/`)
 
-  - `/admin/login` — email + password login. No signup link.
+  - `/admin/login` email + password login. No signup link.
   - `middleware.ts` guards `/admin/*` except `/admin/login`; unauthenticated →
     redirect to login.
-  - `/admin` — dashboard. Nav shows Products, Suppliers, Tags, Messages for all
+  - `/admin` dashboard. Nav shows Products, Suppliers, Tags, Messages for all
     users; **Users** appears only for admins. Logout button.
-  - `/admin/products` — list + add/edit/delete. Form fields: `product_code`,
+  - `/admin/products` list + add/edit/delete. Form fields: `product_code`,
     `title` (slug auto-derived), `description`, `price`, supplier (select from
     suppliers), tags (multi-select from tags), images (multi-upload), videos
     (multi-upload or URL).
-  - `/admin/suppliers` — CRUD suppliers (all fields incl. contact details).
-  - `/admin/tags` — CRUD tags (`name`, `tag_code`).
-  - `/admin/messages` — contact messages, newest first, mark-as-read.
-  - `/admin/users` — **admin-only**. Lists profiles (email, role); admin can
+  - `/admin/suppliers` CRUD suppliers (all fields incl. contact details).
+  - `/admin/tags` CRUD tags (`name`, `tag_code`).
+  - `/admin/messages` contact messages, newest first, mark-as-read.
+  - `/admin/users` **admin-only**. Lists profiles (email, role); admin can
     change a user's role between `admin` and `staff`. Non-admins hitting this
     route are redirected to `/admin`.
 
@@ -233,7 +233,7 @@
   - Contact submit sends email AND creates a `contact_messages` row.
   - `/admin/*` redirects to login when logged out.
   - Logged-in user can: create a supplier; create a tag; create a product with a
-    supplier, multiple tags, multiple images, and a video — and it appears on the
+    supplier, multiple tags, multiple images, and a video and it appears on the
     public listing + detail page; view/mark messages.
   - Supplier data never appears on public pages.
   - An `admin` sees the Users page and can change another user's role; a `staff`

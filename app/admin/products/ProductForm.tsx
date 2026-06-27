@@ -285,7 +285,7 @@ export function ProductForm({
           <div className="mt-2 flex flex-wrap gap-2">
             {tags.length === 0 && (
               <p className="text-xs text-slate-500">
-                No tags yet — create some on the Tags page.
+                No tags yet create some on the Tags page.
               </p>
             )}
             {tags.map((t) => (

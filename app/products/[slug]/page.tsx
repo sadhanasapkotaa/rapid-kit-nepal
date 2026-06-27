@@ -13,9 +13,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "Product not found — Rapid Kit House Nepal" };
+  if (!product) return { title: "Product not found Rapid Kit House Nepal" };
   return {
-    title: `${product.title} — Rapid Kit House Nepal`,
+    title: `${product.title} Rapid Kit House Nepal`,
     description: product.description ?? undefined,
   };
 }

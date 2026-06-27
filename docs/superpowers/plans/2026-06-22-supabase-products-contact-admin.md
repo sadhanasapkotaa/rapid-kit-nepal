@@ -1,4 +1,4 @@
-# Dynamic Products, Suppliers, Tags, Contact Persistence & Admin Panel — Implementation Plan
+# Dynamic Products, Suppliers, Tags, Contact Persistence & Admin Panel Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -12,8 +12,8 @@
 
 - **Next.js 16 specifics (breaking vs. older docs):**
   - Middleware is now **`proxy.ts`** at project root, exporting a `proxy(request)` function (Node.js runtime). There is no `middleware.ts`.
-  - Dynamic route `params` and `searchParams` are **Promises** — `params: Promise<{ slug: string }>`, then `await params`.
-  - `cookies()` from `next/headers` is **async** — `await cookies()`.
+  - Dynamic route `params` and `searchParams` are **Promises** `params: Promise<{ slug: string }>`, then `await params`.
+  - `cookies()` from `next/headers` is **async** `await cookies()`.
 - Path alias: `@/*` → repo root (e.g. `@/lib/supabase/server`).
 - Env vars (already in `.env`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, plus existing `NEXT_PUBLIC_EMAILJS_*`.
 - No unit-test framework is installed. Per-task verification = `npx tsc --noEmit` + `npm run lint` + `npm run build` succeed, plus the stated manual check. Do NOT add a test runner.
@@ -24,33 +24,33 @@
 ## File Structure
 
 **Create:**
-- `supabase/schema.sql` — tables, RLS, helpers, trigger, storage policies, seed.
-- `SUPABASE_SETUP.md` — how to apply SQL, create buckets, disable signups, create first admin.
-- `lib/supabase/client.ts` — browser client.
-- `lib/supabase/server.ts` — cookie-bound server client (async).
-- `lib/supabase/proxy.ts` — `updateSession(request)` used by `proxy.ts`.
-- `lib/supabase/types.ts` — shared row/domain types (`Supplier`, `Tag`, `Product`, `ContactMessage`, `Profile`, `Role`).
-- `lib/auth.ts` — `getSessionUser()`, `getCurrentProfile()`, `requireUser()`, `requireAdmin()` (server-side).
-- `proxy.ts` — session refresh + `/admin/*` guard.
-- `app/components/SiteFrame.tsx` — client; hides public Navbar/Footer on `/admin/*`.
-- `app/products/[slug]/page.tsx` — public product detail.
-- `app/admin/layout.tsx` — server; auth + role, renders admin shell.
-- `app/admin/AdminNav.tsx` — client nav (shows Users only for admin) + logout.
-- `app/admin/login/page.tsx` — login (client).
-- `app/admin/page.tsx` — dashboard.
-- `app/admin/products/page.tsx` + `app/admin/products/ProductsManager.tsx` — product CRUD.
-- `app/admin/products/ProductForm.tsx` — add/edit form with uploads.
+- `supabase/schema.sql` tables, RLS, helpers, trigger, storage policies, seed.
+- `SUPABASE_SETUP.md` how to apply SQL, create buckets, disable signups, create first admin.
+- `lib/supabase/client.ts` browser client.
+- `lib/supabase/server.ts` cookie-bound server client (async).
+- `lib/supabase/proxy.ts` `updateSession(request)` used by `proxy.ts`.
+- `lib/supabase/types.ts` shared row/domain types (`Supplier`, `Tag`, `Product`, `ContactMessage`, `Profile`, `Role`).
+- `lib/auth.ts` `getSessionUser()`, `getCurrentProfile()`, `requireUser()`, `requireAdmin()` (server-side).
+- `proxy.ts` session refresh + `/admin/*` guard.
+- `app/components/SiteFrame.tsx` client; hides public Navbar/Footer on `/admin/*`.
+- `app/products/[slug]/page.tsx` public product detail.
+- `app/admin/layout.tsx` server; auth + role, renders admin shell.
+- `app/admin/AdminNav.tsx` client nav (shows Users only for admin) + logout.
+- `app/admin/login/page.tsx` login (client).
+- `app/admin/page.tsx` dashboard.
+- `app/admin/products/page.tsx` + `app/admin/products/ProductsManager.tsx` product CRUD.
+- `app/admin/products/ProductForm.tsx` add/edit form with uploads.
 - `app/admin/suppliers/page.tsx` + `SuppliersManager.tsx`.
 - `app/admin/tags/page.tsx` + `TagsManager.tsx`.
 - `app/admin/messages/page.tsx` + `MessagesManager.tsx`.
 - `app/admin/users/page.tsx` (server gate) + `UsersManager.tsx`.
 
 **Modify:**
-- `app/products/products.ts` — keep `formatPrice`; remove array; add async data accessors + re-export types.
-- `app/products/page.tsx` — async Server Component reading Supabase; cards link to `/products/[slug]`; tag chips.
-- `app/page.tsx` — async; featured from Supabase.
-- `app/layout.tsx` — wrap body content in `<SiteFrame>`.
-- `.env` — (no secret changes needed; document only).
+- `app/products/products.ts` keep `formatPrice`; remove array; add async data accessors + re-export types.
+- `app/products/page.tsx` async Server Component reading Supabase; cards link to `/products/[slug]`; tag chips.
+- `app/page.tsx` async; featured from Supabase.
+- `app/layout.tsx` wrap body content in `<SiteFrame>`.
+- `.env` (no secret changes needed; document only).
 
 ---
 
@@ -67,7 +67,7 @@
 
 ```sql
 -- =========================================================
--- Rapid Kit House Nepal — schema, RLS, helpers, seed
+-- Rapid Kit House Nepal schema, RLS, helpers, seed
 -- Apply in Supabase Dashboard → SQL Editor.
 -- =========================================================
 
@@ -199,7 +199,7 @@ create policy "staff write product_tags" on public.product_tags for all
 create policy "staff write tags" on public.tags for all
   using (public.is_staff_or_admin()) with check (public.is_staff_or_admin());
 
--- suppliers: internal — staff/admin read + write, no public read
+-- suppliers: internal staff/admin read + write, no public read
 create policy "staff read suppliers" on public.suppliers for select
   using (public.is_staff_or_admin());
 create policy "staff write suppliers" on public.suppliers for all
@@ -235,7 +235,7 @@ insert into public.products (product_code, title, slug, description, price) valu
   ('PRD-002','Tridot-HCV','tridot-hcv','Rapid, sensitive immunoassay for the qualitative detection of antibodies to Hepatitis C virus in human serum or plasma.',949),
   ('PRD-003','Abbott-hcv','abbott-hcv','Abbott rapid HCV antibody test for reliable point-of-care screening with clear visual results in minutes.',1199),
   ('PRD-004','All-test-hcv','all-test-hcv','All-Test HCV one-step antibody cassette for qualitative detection in serum, plasma, or whole blood samples.',849),
-  ('PRD-005','Cg-hcv','cg-hcv','CG rapid HCV antibody test strip — economical screening tool suitable for clinics, camps, and outreach programs.',799),
+  ('PRD-005','Cg-hcv','cg-hcv','CG rapid HCV antibody test strip economical screening tool suitable for clinics, camps, and outreach programs.',799),
   ('PRD-006','Elisa-hcv','elisa-hcv','ELISA-based HCV antibody detection kit for laboratory use, delivering quantitative results with high sensitivity and specificity.',2499),
   ('PRD-007','newscan-hcv','newscan-hcv','Newscan rapid HCV antibody cassette designed for fast, reliable screening in resource-limited settings.',879)
 on conflict (product_code) do nothing;
@@ -326,7 +326,7 @@ export async function createClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Called from a Server Component; safe to ignore — proxy refreshes cookies.
+            // Called from a Server Component; safe to ignore proxy refreshes cookies.
           }
         },
       },
@@ -389,7 +389,7 @@ export async function updateSession(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 4: `proxy.ts`** (project root — NOT `middleware.ts`)
+- [ ] **Step 4: `proxy.ts`** (project root NOT `middleware.ts`)
 
 ```ts
 import { type NextRequest } from "next/server";
@@ -480,7 +480,7 @@ export type ContactMessage = {
 export type Profile = { id: string; email: string | null; role: Role; created_at: string };
 ```
 
-- [ ] **Step 2: Rewrite `app/products/products.ts`** — remove the hard-coded array; keep `formatPrice`; add accessors. Use one nested select and map media/tags to flat arrays sorted by `sort_order`.
+- [ ] **Step 2: Rewrite `app/products/products.ts`** remove the hard-coded array; keep `formatPrice`; add accessors. Use one nested select and map media/tags to flat arrays sorted by `sort_order`.
 
 ```ts
 import { createClient } from "@/lib/supabase/server";
@@ -626,7 +626,7 @@ import { Footer } from "./components/Footer";
 
 (Remove the now-unused `Navbar` import from layout.)
 
-- [ ] **Step 3: Modify `app/products/page.tsx`** — make it `async`, fetch products, derive categories from tags, link cards to `/products/[slug]`, show first image + tag chips. Keep the existing hero/markup/classes; only swap the data source. Key changes:
+- [ ] **Step 3: Modify `app/products/page.tsx`** make it `async`, fetch products, derive categories from tags, link cards to `/products/[slug]`, show first image + tag chips. Keep the existing hero/markup/classes; only swap the data source. Key changes:
 
 ```tsx
 import { getProducts, formatPrice } from "./products";
@@ -650,7 +650,7 @@ export default async function ProductsPage() {
 
 Guard the image: `src={p.images[0] ?? "/images/HIV-Tri-Dot.webp"}` (any existing asset as fallback) so a product with no image still renders.
 
-- [ ] **Step 4: Modify `app/page.tsx`** — make `Home` `async`; replace `const featured = products.slice(0,3)` with `const featured = await getFeaturedProducts(3);`; update the featured card fields to `p.title`, `p.images[0]`, `formatPrice(p.price)`, link to `/products/${p.slug}`. Keep `features` array and all other markup.
+- [ ] **Step 4: Modify `app/page.tsx`** make `Home` `async`; replace `const featured = products.slice(0,3)` with `const featured = await getFeaturedProducts(3);`; update the featured card fields to `p.title`, `p.images[0]`, `formatPrice(p.price)`, link to `/products/${p.slug}`. Keep `features` array and all other markup.
 
 - [ ] **Step 5: Verify**
 
@@ -674,7 +674,7 @@ git commit -m "feat: dynamic products list + homepage from supabase; admin-aware
 **Interfaces:**
 - Consumes: `getProductBySlug`, `formatPrice` (Task 3).
 
-- [ ] **Step 1: `app/products/[slug]/page.tsx`** — Server Component; async `params`; `notFound()` on miss. Renders image gallery (all `images`), embedded videos (HTML5 `<video controls>` for each `videos` URL), title, tag chips, full description, price, and an "Enquire" `Link` to `/contact`. No supplier shown. Use `max-w-6xl` container + existing tokens.
+- [ ] **Step 1: `app/products/[slug]/page.tsx`** Server Component; async `params`; `notFound()` on miss. Renders image gallery (all `images`), embedded videos (HTML5 `<video controls>` for each `videos` URL), title, tag chips, full description, price, and an "Enquire" `Link` to `/contact`. No supplier shown. Use `max-w-6xl` container + existing tokens.
 
 ```tsx
 import Image from "next/image";
@@ -692,7 +692,7 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product not found" };
   return {
-    title: `${product.title} — Rapid Kit House Nepal`,
+    title: `${product.title} Rapid Kit House Nepal`,
     description: product.description ?? undefined,
   };
 }
@@ -726,7 +726,7 @@ git commit -m "feat: public product detail page with gallery + videos"
 
 ---
 
-## Task 6: Contact form — additive Supabase persistence
+## Task 6: Contact form additive Supabase persistence
 
 **Files:**
 - Modify: `app/contact/ContactForm.tsx`
@@ -770,7 +770,7 @@ git commit -m "feat: persist contact submissions to supabase alongside emailjs"
 
 ---
 
-## Task 7: Auth — server helpers, admin layout, login & logout
+## Task 7: Auth server helpers, admin layout, login & logout
 
 **Files:**
 - Create: `lib/auth.ts`, `app/admin/layout.tsx`, `app/admin/AdminNav.tsx`, `app/admin/login/page.tsx`
@@ -812,7 +812,7 @@ export async function requireAdmin(): Promise<Profile> {
 }
 ```
 
-- [ ] **Step 2: `app/admin/AdminNav.tsx`** (client) — links to `/admin`, `/admin/products`, `/admin/suppliers`, `/admin/tags`, `/admin/messages`; conditionally `/admin/users` when `role === "admin"`. Logout button calls `createClient().auth.signOut()` then `router.push("/admin/login"); router.refresh();`. Props: `{ role: Role; email: string | null }`.
+- [ ] **Step 2: `app/admin/AdminNav.tsx`** (client) links to `/admin`, `/admin/products`, `/admin/suppliers`, `/admin/tags`, `/admin/messages`; conditionally `/admin/users` when `role === "admin"`. Logout button calls `createClient().auth.signOut()` then `router.push("/admin/login"); router.refresh();`. Props: `{ role: Role; email: string | null }`.
 
 ```tsx
 "use client";
@@ -844,7 +844,7 @@ export function AdminNav({ role, email }: { role: Role; email: string | null }) 
 }
 ```
 
-- [ ] **Step 3: `app/admin/layout.tsx`** (server) — if pathname is the login page the layout still renders, but login has no nav. Simplest: layout fetches profile; if none, render children bare (login page handles its own UI and proxy already blocks other routes). If profile exists, render the admin shell with `AdminNav`.
+- [ ] **Step 3: `app/admin/layout.tsx`** (server) if pathname is the login page the layout still renders, but login has no nav. Simplest: layout fetches profile; if none, render children bare (login page handles its own UI and proxy already blocks other routes). If profile exists, render the admin shell with `AdminNav`.
 
 ```tsx
 import { getCurrentProfile } from "@/lib/auth";
@@ -865,7 +865,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 }
 ```
 
-- [ ] **Step 4: `app/admin/login/page.tsx`** (client) — email+password form; `createClient().auth.signInWithPassword(...)`; on success `router.push("/admin"); router.refresh();`; show inline error on failure. No signup link. Match the contact-form input styling.
+- [ ] **Step 4: `app/admin/login/page.tsx`** (client) email+password form; `createClient().auth.signInWithPassword(...)`; on success `router.push("/admin"); router.refresh();`; show inline error on failure. No signup link. Match the contact-form input styling.
 
 ```tsx
 "use client";
@@ -903,7 +903,7 @@ export default function LoginPage() {
 
 ```bash
 git add lib/auth.ts app/admin/layout.tsx app/admin/AdminNav.tsx app/admin/login/page.tsx
-git commit -m "feat: admin auth — server helpers, layout, login, logout"
+git commit -m "feat: admin auth server helpers, layout, login, logout"
 ```
 
 ---
@@ -916,7 +916,7 @@ git commit -m "feat: admin auth — server helpers, layout, login, logout"
 **Interfaces:**
 - Consumes: `requireUser`, server `createClient` for counts.
 
-- [ ] **Step 1: `app/admin/page.tsx`** (server) — `const profile = await requireUser();` then fetch counts (`products`, `suppliers`, `tags`, unread `contact_messages`) using `select("*", { count: "exact", head: true })`, render summary cards linking to each section. Use existing card styling.
+- [ ] **Step 1: `app/admin/page.tsx`** (server) `const profile = await requireUser();` then fetch counts (`products`, `suppliers`, `tags`, unread `contact_messages`) using `select("*", { count: "exact", head: true })`, render summary cards linking to each section. Use existing card styling.
 
 ```tsx
 import Link from "next/link";
@@ -957,11 +957,11 @@ git commit -m "feat: admin dashboard with section counts"
 - Consumes: browser `createClient`, `Supplier`, `Tag`, `Product` types, `formatPrice`.
 - Produces: full product create/edit/delete incl. image+video uploads to Storage.
 
-- [ ] **Step 1: `app/admin/products/page.tsx`** (server) — `await requireUser();` then render `<ProductsManager />`. Data loads client-side in the manager.
+- [ ] **Step 1: `app/admin/products/page.tsx`** (server) `await requireUser();` then render `<ProductsManager />`. Data loads client-side in the manager.
 
-- [ ] **Step 2: `app/admin/products/ProductsManager.tsx`** (client) — on mount, load products (reuse the nested select shape from Task 3 via the browser client), suppliers, and tags. Render a table (title, product_code, price, tags, image count). Buttons: Add (opens `ProductForm` empty), Edit (opens with values), Delete (deletes the `products` row — cascade removes media/junction; then reload). Keep a `loading`/`error` state.
+- [ ] **Step 2: `app/admin/products/ProductsManager.tsx`** (client) on mount, load products (reuse the nested select shape from Task 3 via the browser client), suppliers, and tags. Render a table (title, product_code, price, tags, image count). Buttons: Add (opens `ProductForm` empty), Edit (opens with values), Delete (deletes the `products` row cascade removes media/junction; then reload). Keep a `loading`/`error` state.
 
-- [ ] **Step 3: `app/admin/products/ProductForm.tsx`** (client) — fields: `product_code`, `title` (slug auto = lowercase, spaces/non-alnum → `-`, collapse repeats, trim), `description`, `price` (number), `supplier_id` (`<select>` from suppliers, optional/"None"), tags (multi-select checkboxes from tags), image files (`<input type="file" multiple accept="image/*">`), video files (`<input type="file" multiple accept="video/*">`) plus optional video URL text inputs.
+- [ ] **Step 3: `app/admin/products/ProductForm.tsx`** (client) fields: `product_code`, `title` (slug auto = lowercase, spaces/non-alnum → `-`, collapse repeats, trim), `description`, `price` (number), `supplier_id` (`<select>` from suppliers, optional/"None"), tags (multi-select checkboxes from tags), image files (`<input type="file" multiple accept="image/*">`), video files (`<input type="file" multiple accept="video/*">`) plus optional video URL text inputs.
 
   Save sequence (create):
   1. Upload each image file to bucket `product-images` at `${slug}/${crypto.randomUUID()}-${file.name}`; get public URL via `supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl`.
@@ -1004,9 +1004,9 @@ git commit -m "feat: admin product CRUD with image/video upload"
 **Interfaces:**
 - Consumes: browser `createClient`, `Supplier` type.
 
-- [ ] **Step 1: `app/admin/suppliers/page.tsx`** (server) — `await requireUser();` render `<SuppliersManager />`.
+- [ ] **Step 1: `app/admin/suppliers/page.tsx`** (server) `await requireUser();` render `<SuppliersManager />`.
 
-- [ ] **Step 2: `SuppliersManager.tsx`** (client) — load suppliers; table (name, supplier_code, country, contact_person, phone, email, created_at). Add/Edit inline form with fields `supplier_code, name, country_of_origin, contact_person_name, contact_phone, contact_email`. Create/update/delete against `suppliers`; reload after each. Inline error state.
+- [ ] **Step 2: `SuppliersManager.tsx`** (client) load suppliers; table (name, supplier_code, country, contact_person, phone, email, created_at). Add/Edit inline form with fields `supplier_code, name, country_of_origin, contact_person_name, contact_phone, contact_email`. Create/update/delete against `suppliers`; reload after each. Inline error state.
 
 - [ ] **Step 3: Verify** `npm run build` → PASS; create/edit/delete a supplier; it appears in the product form's supplier dropdown.
 
@@ -1027,9 +1027,9 @@ git commit -m "feat: admin suppliers CRUD"
 **Interfaces:**
 - Consumes: browser `createClient`, `Tag` type.
 
-- [ ] **Step 1: `app/admin/tags/page.tsx`** (server) — `await requireUser();` render `<TagsManager />`.
+- [ ] **Step 1: `app/admin/tags/page.tsx`** (server) `await requireUser();` render `<TagsManager />`.
 
-- [ ] **Step 2: `TagsManager.tsx`** (client) — load tags; table (name, tag_code); add/edit/delete with fields `name`, `tag_code`. Inline error state.
+- [ ] **Step 2: `TagsManager.tsx`** (client) load tags; table (name, tag_code); add/edit/delete with fields `name`, `tag_code`. Inline error state.
 
 - [ ] **Step 3: Verify** `npm run build` → PASS; create a tag (e.g. "Pregnancy kit" / `TAG-PREG`); it appears in the product form tag list.
 
@@ -1050,9 +1050,9 @@ git commit -m "feat: admin tags CRUD"
 **Interfaces:**
 - Consumes: browser `createClient`, `ContactMessage` type.
 
-- [ ] **Step 1: `app/admin/messages/page.tsx`** (server) — `await requireUser();` render `<MessagesManager />`.
+- [ ] **Step 1: `app/admin/messages/page.tsx`** (server) `await requireUser();` render `<MessagesManager />`.
 
-- [ ] **Step 2: `MessagesManager.tsx`** (client) — load `contact_messages` ordered `created_at desc`. List each (name, email, topic, org/phone if present, message, created_at, read/unread badge). "Mark as read"/"Mark as unread" toggles `is_read` via update, then updates local state. Unread visually highlighted.
+- [ ] **Step 2: `MessagesManager.tsx`** (client) load `contact_messages` ordered `created_at desc`. List each (name, email, topic, org/phone if present, message, created_at, read/unread badge). "Mark as read"/"Mark as unread" toggles `is_read` via update, then updates local state. Unread visually highlighted.
 
 - [ ] **Step 3: Verify** `npm run build` → PASS; the row created in Task 6 appears; toggling read updates the badge and the dashboard unread count.
 
@@ -1073,9 +1073,9 @@ git commit -m "feat: admin contact messages view + mark-as-read"
 **Interfaces:**
 - Consumes: `requireAdmin` (Task 7), browser `createClient`, `Profile`/`Role` types.
 
-- [ ] **Step 1: `app/admin/users/page.tsx`** (server) — `const me = await requireAdmin();` (redirects non-admins to `/admin`). Render `<UsersManager currentUserId={me.id} />`.
+- [ ] **Step 1: `app/admin/users/page.tsx`** (server) `const me = await requireAdmin();` (redirects non-admins to `/admin`). Render `<UsersManager currentUserId={me.id} />`.
 
-- [ ] **Step 2: `UsersManager.tsx`** (client, props `{ currentUserId: string }`) — load `profiles` (email, role, created_at). Table with a role `<select>` (`admin`/`staff`) per row; changing it updates `profiles.role` for that id. Disable changing your own role (prevent self-lockout) by comparing to `currentUserId`. Inline error state. (New users are still created in the Supabase dashboard; note this in a small helper text.)
+- [ ] **Step 2: `UsersManager.tsx`** (client, props `{ currentUserId: string }`) load `profiles` (email, role, created_at). Table with a role `<select>` (`admin`/`staff`) per row; changing it updates `profiles.role` for that id. Disable changing your own role (prevent self-lockout) by comparing to `currentUserId`. Inline error state. (New users are still created in the Supabase dashboard; note this in a small helper text.)
 
 - [ ] **Step 3: Verify** `npm run build` → PASS. Manually: as admin, the Users link shows and the page lists profiles; change a staff user to admin and back; as a `staff` user, `/admin/users` redirects to `/admin` and the Users link is absent.
 

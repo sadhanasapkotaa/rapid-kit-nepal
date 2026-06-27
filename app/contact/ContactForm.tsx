@@ -58,7 +58,7 @@ export function ContactForm() {
     }
 
     // Persist to Supabase independently. A DB failure must never affect the
-    // EmailJS-driven success/error UX above — email is the source of truth.
+    // EmailJS-driven success/error UX above email is the source of truth.
     try {
       const supabase = createClient();
       const { error: dbError } = await supabase
@@ -266,7 +266,7 @@ export function ContactForm() {
               name="message"
               rows={5}
               className="mt-1.5 w-full resize-y rounded-lg border border-border bg-white px-3.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10"
-              placeholder="Hi KitHouse team — we&apos;re a 40-bed clinic in Pune looking to standardise our maternal-care kits…"
+              placeholder="Hi KitHouse team we&apos;re a 40-bed clinic in Pune looking to standardise our maternal-care kits…"
             />
           </div>
         </fieldset>

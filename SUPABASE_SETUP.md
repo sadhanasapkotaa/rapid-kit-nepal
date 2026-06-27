@@ -21,8 +21,8 @@ policies, and seeds the 7 existing products + their tags.
 ## 2. Create the storage buckets
 
 1. Go to **Storage** → **New bucket**.
-2. Create **`product-images`** — toggle **Public bucket** ON.
-3. Create **`product-videos`** — toggle **Public bucket** ON.
+2. Create **`product-images`** toggle **Public bucket** ON.
+3. Create **`product-videos`** toggle **Public bucket** ON.
 
 The read/write policies for these buckets are already created by `schema.sql`
 (public read, authenticated write). Create the buckets *after* running the SQL,
@@ -33,7 +33,7 @@ or re-run the storage-policy block if you create them later.
 1. Go to **Authentication** → **Sign In / Providers** (or **Settings**).
 2. **Disable** "Allow new users to sign up".
 
-This keeps the admin panel invite-only — only users you create can log in.
+This keeps the admin panel invite-only only users you create can log in.
 
 ## 4. Create the first admin user
 
@@ -50,8 +50,8 @@ This keeps the admin panel invite-only — only users you create can log in.
 
 ## Roles
 
-- **admin** — full access, including the **Users** page (assign/revoke roles).
-- **staff** — manage all content (products, suppliers, tags) and read/mark
+- **admin** full access, including the **Users** page (assign/revoke roles).
+- **staff** manage all content (products, suppliers, tags) and read/mark
   contact messages, but cannot manage users.
 
 New users always start as `staff`; an admin promotes them on the Users page.

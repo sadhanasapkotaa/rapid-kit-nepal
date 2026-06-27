@@ -54,7 +54,7 @@ export default async function Home() {
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
               Rapid Kit House Nepal designs and manufactures professional-grade medical kits
-              for clinics, hospitals, NGOs, and households — from pregnancy and
+              for clinics, hospitals, NGOs, and households from pregnancy and
               HIV testing to first aid and minor surgery.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

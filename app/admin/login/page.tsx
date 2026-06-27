@@ -47,7 +47,7 @@ export default function LoginPage() {
             Admin sign in
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Rapid Kit House Nepal — staff only
+            Rapid Kit House Nepal staff only
           </p>
         </div>
 

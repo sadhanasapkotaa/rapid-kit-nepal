@@ -1,5 +1,5 @@
 -- =========================================================
--- Rapid Kit House Nepal — schema, RLS, helpers, seed
+-- Rapid Kit House Nepal schema, RLS, helpers, seed
 -- Apply in Supabase Dashboard → SQL Editor.
 -- =========================================================
 
@@ -165,7 +165,7 @@ create policy "admin write tags" on public.tags for all
 create policy "admin write generations" on public.generations for all
   using (public.is_admin()) with check (public.is_admin());
 
--- suppliers: internal — admin read + write, no public read
+-- suppliers: internal admin read + write, no public read
 drop policy if exists "staff read suppliers" on public.suppliers;
 drop policy if exists "staff write suppliers" on public.suppliers;
 drop policy if exists "admin read suppliers" on public.suppliers;
@@ -237,7 +237,7 @@ insert into public.products (product_code, title, slug, description, price) valu
   ('PRD-002','Tridot-HCV','tridot-hcv','Rapid, sensitive immunoassay for the qualitative detection of antibodies to Hepatitis C virus in human serum or plasma.',949),
   ('PRD-003','Abbott-hcv','abbott-hcv','Abbott rapid HCV antibody test for reliable point-of-care screening with clear visual results in minutes.',1199),
   ('PRD-004','All-test-hcv','all-test-hcv','All-Test HCV one-step antibody cassette for qualitative detection in serum, plasma, or whole blood samples.',849),
-  ('PRD-005','Cg-hcv','cg-hcv','CG rapid HCV antibody test strip — economical screening tool suitable for clinics, camps, and outreach programs.',799),
+  ('PRD-005','Cg-hcv','cg-hcv','CG rapid HCV antibody test strip economical screening tool suitable for clinics, camps, and outreach programs.',799),
   ('PRD-006','Elisa-hcv','elisa-hcv','ELISA-based HCV antibody detection kit for laboratory use, delivering quantitative results with high sensitivity and specificity.',2499),
   ('PRD-007','newscan-hcv','newscan-hcv','Newscan rapid HCV antibody cassette designed for fast, reliable screening in resource-limited settings.',879)
 on conflict (product_code) do nothing;
