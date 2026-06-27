@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -36,24 +37,14 @@ export function Navbar() {
           className="flex min-w-0 items-center gap-2"
           onClick={() => setOpen(false)}
         >
-          <span
-            aria-hidden
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-white"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
-              <path d="M12 5v14" />
-              <path d="M5 12h14" />
-            </svg>
-          </span>
+          <Image
+            src="/logo.jpeg"
+            alt="Rapid Kit House Nepal logo"
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9 shrink-0 rounded-md object-cover"
+          />
           <span className="truncate text-sm font-semibold tracking-tight text-foreground sm:text-lg">
             Rapid Kit House Nepal
           </span>

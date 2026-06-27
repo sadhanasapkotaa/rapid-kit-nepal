@@ -2,6 +2,12 @@ export type Role = "admin" | "staff";
 
 export type Tag = { id: string; tag_code: string; name: string };
 
+export type Generation = {
+  id: string;
+  generation_code: string;
+  name: string;
+};
+
 export type Supplier = {
   id: string;
   supplier_code: string;

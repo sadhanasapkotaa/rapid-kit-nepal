@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -6,24 +7,13 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 sm:py-12 sm:grid-cols-2 md:grid-cols-4">
         <div className="sm:col-span-2">
           <div className="flex items-center gap-2">
-            <span
-              aria-hidden
-              className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-white"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="M12 5v14" />
-                <path d="M5 12h14" />
-              </svg>
-            </span>
+            <Image
+              src="/logo.jpeg"
+              alt="Rapid Kit House Nepal logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-md object-cover"
+            />
             <span className="text-base font-semibold tracking-tight">
               Rapid Kit House Nepal
             </span>

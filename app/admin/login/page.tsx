@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -34,9 +35,14 @@ export default function LoginPage() {
         className="w-full max-w-sm rounded-2xl border border-border bg-white p-8 shadow-sm"
       >
         <div className="mb-6 text-center">
-          <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-md bg-primary text-sm font-bold text-white">
-            RK
-          </span>
+          <Image
+            src="/logo.jpeg"
+            alt="Rapid Kit House Nepal logo"
+            width={44}
+            height={44}
+            priority
+            className="mx-auto h-11 w-11 rounded-md object-cover"
+          />
           <h1 className="mt-4 text-xl font-semibold text-foreground">
             Admin sign in
           </h1>

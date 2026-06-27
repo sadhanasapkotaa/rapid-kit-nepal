@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/format";
-import type { Supplier, Tag } from "@/lib/supabase/types";
+import type { Generation, Supplier, Tag } from "@/lib/supabase/types";
 import { ProductForm } from "./ProductForm";
 
 export type AdminProduct = {
   id: string;
   product_code: string;
   supplier_id: string | null;
+  generation_id: string | null;
   title: string;
   slug: string;
   description: string | null;
@@ -19,13 +20,14 @@ export type AdminProduct = {
 };
 
 const SELECT =
-  "id, product_code, supplier_id, title, slug, description, price, " +
+  "id, product_code, supplier_id, generation_id, title, slug, description, price, " +
   "product_images(id), tags:product_tags(tags(id, tag_code, name))";
 
 type Row = {
   id: string;
   product_code: string;
   supplier_id: string | null;
+  generation_id: string | null;
   title: string;
   slug: string;
   description: string | null;
@@ -38,6 +40,7 @@ export function ProductsManager() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [generations, setGenerations] = useState<Generation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -45,18 +48,23 @@ export function ProductsManager() {
 
   const load = useCallback(async () => {
     const supabase = createClient();
-    const [pRes, sRes, tRes] = await Promise.all([
+    const [pRes, sRes, tRes, gRes] = await Promise.all([
       supabase.from("products").select(SELECT).order("created_at", {
         ascending: true,
       }),
       supabase.from("suppliers").select("*").order("name"),
       supabase.from("tags").select("id, tag_code, name").order("name"),
+      supabase
+        .from("generations")
+        .select("id, generation_code, name")
+        .order("generation_code"),
     ]);
-    if (pRes.error || sRes.error || tRes.error) {
+    if (pRes.error || sRes.error || tRes.error || gRes.error) {
       setError(
         pRes.error?.message ??
           sRes.error?.message ??
           tRes.error?.message ??
+          gRes.error?.message ??
           "Failed to load.",
       );
       setLoading(false);
@@ -66,6 +74,7 @@ export function ProductsManager() {
       id: r.id,
       product_code: r.product_code,
       supplier_id: r.supplier_id,
+      generation_id: r.generation_id,
       title: r.title,
       slug: r.slug,
       description: r.description,
@@ -78,6 +87,7 @@ export function ProductsManager() {
     setProducts(rows);
     setSuppliers(sRes.data as Supplier[]);
     setTags(tRes.data as Tag[]);
+    setGenerations(gRes.data as Generation[]);
     setError(null);
     setLoading(false);
   }, []);
@@ -189,6 +199,7 @@ export function ProductsManager() {
           product={editing}
           suppliers={suppliers}
           tags={tags}
+          generations={generations}
           onClose={() => setFormOpen(false)}
           onSaved={() => {
             setFormOpen(false);

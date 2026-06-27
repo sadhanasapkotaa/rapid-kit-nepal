@@ -6,10 +6,11 @@ export default async function AdminDashboard() {
   const profile = await requireUser();
   const supabase = await createClient();
 
-  const [products, suppliers, tags, unread] = await Promise.all([
+  const [products, suppliers, tags, generations, unread] = await Promise.all([
     supabase.from("products").select("*", { count: "exact", head: true }),
     supabase.from("suppliers").select("*", { count: "exact", head: true }),
     supabase.from("tags").select("*", { count: "exact", head: true }),
+    supabase.from("generations").select("*", { count: "exact", head: true }),
     supabase
       .from("contact_messages")
       .select("*", { count: "exact", head: true })
@@ -20,6 +21,11 @@ export default async function AdminDashboard() {
     { label: "Products", count: products.count ?? 0, href: "/admin/products" },
     { label: "Suppliers", count: suppliers.count ?? 0, href: "/admin/suppliers" },
     { label: "Tags", count: tags.count ?? 0, href: "/admin/tags" },
+    {
+      label: "Generations",
+      count: generations.count ?? 0,
+      href: "/admin/generations",
+    },
     {
       label: "Unread messages",
       count: unread.count ?? 0,

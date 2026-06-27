@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -11,6 +12,7 @@ const baseLinks = [
   { href: "/admin/products", label: "Products" },
   { href: "/admin/suppliers", label: "Suppliers" },
   { href: "/admin/tags", label: "Tags" },
+  { href: "/admin/generations", label: "Generations" },
   { href: "/admin/messages", label: "Messages" },
 ];
 
@@ -39,9 +41,14 @@ export function AdminNav({ role, email }: { role: Role; email: string | null }) 
     <header className="sticky top-0 z-40 border-b border-border bg-white">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
         <Link href="/admin" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-white">
-            RK
-          </span>
+          <Image
+            src="/logo.jpeg"
+            alt="Rapid Kit House Nepal logo"
+            width={32}
+            height={32}
+            priority
+            className="h-8 w-8 rounded-md object-cover"
+          />
           <span className="text-sm font-semibold text-foreground">Admin</span>
         </Link>
 

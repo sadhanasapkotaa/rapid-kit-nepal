@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Supplier, Tag } from "@/lib/supabase/types";
+import type { Generation, Supplier, Tag } from "@/lib/supabase/types";
 import type { AdminProduct } from "./ProductsManager";
 
 export function slugify(input: string) {
@@ -39,12 +39,14 @@ export function ProductForm({
   product,
   suppliers,
   tags,
+  generations,
   onClose,
   onSaved,
 }: {
   product: AdminProduct | null;
   suppliers: Supplier[];
   tags: Tag[];
+  generations: Generation[];
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -56,6 +58,9 @@ export function ProductForm({
     product ? String(product.price) : "",
   );
   const [supplierId, setSupplierId] = useState(product?.supplier_id ?? "");
+  const [generationId, setGenerationId] = useState(
+    product?.generation_id ?? "",
+  );
   const [selectedTags, setSelectedTags] = useState<string[]>(
     product?.tags.map((t) => t.id) ?? [],
   );
@@ -95,6 +100,7 @@ export function ProductForm({
         description: description || null,
         price: priceNum,
         supplier_id: supplierId || null,
+        generation_id: generationId || null,
       };
 
       let productId: string;
@@ -253,6 +259,22 @@ export function ProductForm({
             {suppliers.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name} ({s.supplier_code})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mt-5">
+          <label className={labelClass}>Generation</label>
+          <select
+            value={generationId}
+            onChange={(e) => setGenerationId(e.target.value)}
+            className={inputClass}
+          >
+            <option value="">— None —</option>
+            {generations.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
               </option>
             ))}
           </select>
