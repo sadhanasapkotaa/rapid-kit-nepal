@@ -101,11 +101,11 @@ export default async function Home() {
           <div className="relative">
             <div
               style={{ position: "relative" }}
-              className="aspect-4/3 w-full overflow-hidden rounded-2xl shadow-xl ring-1 ring-border sm:aspect-4/5"
+              className="aspect-3/2 w-full overflow-hidden rounded-2xl shadow-xl ring-1 ring-border"
             >
               <Image
-                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=85"
-                alt="Doctor reviewing medical supplies on a desk"
+                src="/test-kit.png"
+                alt="Rapid Kit House Nepal rapid test kits: pregnancy, HIV, malaria, typhoid and dengue"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"

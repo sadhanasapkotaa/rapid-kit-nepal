@@ -41,25 +41,26 @@ export default function AboutPage() {
               About Rapid Kit House Nepal
             </p>
             <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Eighteen years of putting the right kit in the right hands.
+              Years of putting the right kit in the right hands.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-              We&apos;re a team of clinicians, designers, and supply-chain
+              We&apos;re a team of supply-chain
               specialists making sure that whether you&apos;re in an ICU or a
-              village clinic, you have a medical kit that works the first time,
+              village clinic, you have a medical kit that works
               every time.
             </p>
           </div>
           <div
             style={{ position: "relative" }}
-            className="aspect-4/3 w-full overflow-hidden rounded-2xl shadow-xl ring-1 ring-border"
+            className="aspect-3/2 w-full overflow-hidden rounded-2xl shadow-xl ring-1 ring-border"
           >
             <Image
-              src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=1200&q=85"
-              alt="Healthcare team in a hospital corridor"
+              src="/kit-materials.png"
+              alt="Rapid Kit House Nepal rapid test kit range with quality and accuracy callouts"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
+              preload
             />
           </div>
         </div>
